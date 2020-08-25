@@ -74,7 +74,7 @@ variable "database" {
   default = {
     name           = "gitpod"
     user_name      = "gitpod"
-    password       = random_password.mysql_password.result
+    password       = ""
     engine_version = "5.7.26"
     port           = 3306
     instance_class = "db.t2.micro"

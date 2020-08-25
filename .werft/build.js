@@ -71,6 +71,37 @@ async function build(context, version) {
         publishHelmChart("eu.gcr.io/gitpod-io/self-hosted")
         exec(`gcloud auth activate-service-account --key-file "${GCLOUD_SERVICE_ACCOUNT_PATH}"`);
     }
+
+    werft.phase("Terraform")
+
+    try {
+      werft.log("AWS", "Preparing")
+      shell.cd("install/aws-terraform-full")
+      exec("terraform init -backend=false")
+      werft.log("AWS", "Checking Code Style")
+      exec("terraform fmt -recursive -check")
+      werft.log("AWS", "Validating Terraform Configuration")
+      exec("terraform validate")
+      werft.done("AWS")
+    } catch (err) {
+      werft.fail("AWS", err)
+    }
+
+    try {
+      werft.log("GCP", "Preparing")
+      shell.cd("../gcp-terraform")
+      exec("terraform init -backend=false")
+      werft.log("GCP", "Checking Code Style")
+      exec("terraform fmt -recursive -check")
+      werft.log("GCP", "Validating Terraform Configuration")
+      exec("terraform validate")
+      werft.done("GCP")
+    } catch (err) {
+      werft.fail("GCP", err)
+    }
+
+    shell.cd("../..")
+  
     // gitTag(`build/${version}`);
 
     // if (masterBuild) {
