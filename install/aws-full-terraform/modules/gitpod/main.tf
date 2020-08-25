@@ -15,7 +15,7 @@ resource "helm_release" "gitpod" {
   values = flatten([
     data.template_file.gitpod_values_main.rendered,
     data.template_file.gitpod_values_auth_provider.rendered,
-    [for path in var.gitpod.valuesFiles : file(path)],
+    [for path in var.gitpod.valueFiles : file(path)],
     var.values
   ])
 
