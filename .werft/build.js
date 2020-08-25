@@ -74,30 +74,26 @@ async function build(context, version) {
 
     werft.phase("Terraform")
 
-    try {
-      werft.log("AWS", "Preparing")
-      shell.cd("install/aws-terraform-full")
-      exec("terraform init -backend=false")
-      werft.log("AWS", "Checking Code Style")
-      exec("terraform fmt -recursive -check")
-      werft.log("AWS", "Validating Terraform Configuration")
-      exec("terraform validate")
-      werft.done("AWS")
-    } catch (err) {
-      werft.fail("AWS", err)
-    }
+    var terraformScripts = [
+      "aws-full-terraform",
+      "aws-terraform",
+      "gcp-full-terraform",
+      "gcp-terraform"
+    ]
 
-    try {
-      werft.log("GCP", "Preparing")
-      shell.cd("../gcp-terraform")
-      exec("terraform init -backend=false")
-      werft.log("GCP", "Checking Code Style")
-      exec("terraform fmt -recursive -check")
-      werft.log("GCP", "Validating Terraform Configuration")
-      exec("terraform validate")
-      werft.done("GCP")
-    } catch (err) {
-      werft.fail("GCP", err)
+    for (var i of terraformScripts) {
+      try {
+        werft.log(i, "Preparing")
+        shell.cd(`install/${i}`)
+        exec("terraform init -backend=false")
+        werft.log(i, "Checking Code Style")
+        exec("terraform fmt -recursive -check")
+        werft.log("AWS", "Validating Terraform Configuration")
+        exec("terraform validate")
+        werft.done(i)
+      } catch (err) {
+        werft.fail(i, err)
+      }
     }
 
     shell.cd("../..")
