@@ -44,6 +44,6 @@ variable "image_prefix" {
 }
 
 variable "force_https" {
-    type = bool
-    default = false
+  type    = bool
+  default = false
 }
