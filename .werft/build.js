@@ -88,7 +88,7 @@ async function build(context, version) {
         exec("terraform init -backend=false")
         werft.log(i, "Checking Code Style")
         exec("terraform fmt -recursive -check")
-        werft.log("AWS", "Validating Terraform Configuration")
+        werft.log(i, "Validating Terraform Configuration")
         exec("terraform validate")
         werft.done(i)
       } catch (err) {
