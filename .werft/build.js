@@ -91,6 +91,7 @@ async function build(context, version) {
         werft.log(i, "Validating Terraform Configuration")
         exec("terraform validate", {async: true})
         werft.done(i)
+        shell.cd("..")
       } catch (err) {
         werft.fail(i, err)
       }
