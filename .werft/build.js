@@ -81,19 +81,8 @@ async function build(context, version) {
       "gcp-terraform"
     ]
 
-    for await (var i of terraformScripts) {
-      try {
-        werft.log(i, "Preparing")
-        shell.cd(`install/${i}`)
-        exec("terraform init -backend=false")
-        werft.log(i, "Checking Code Style")
-        exec("terraform fmt -recursive -check")
-        werft.log(i, "Validating Terraform Configuration")
-        exec("terraform validate")
-        werft.done(i)
-      } catch (err) {
-        werft.fail(i, err)
-      }
+    for (var i of terraformScripts) {
+      checkScript(i)
     }
 
     shell.cd("../..")
@@ -119,6 +108,21 @@ async function build(context, version) {
     }
 }
 
+
+async function checkScript(scriptName) {
+  try {
+    werft.log(scriptName, "Preparing")
+    shell.cd(`install/${scriptName}`)
+    exec("terraform init -backend=false")
+    werft.log(scriptName, "Checking Code Style")
+    exec("terraform fmt -recursive -check")
+    werft.log(scriptName, "Validating Terraform Configuration")
+    exec("terraform validate")
+    werft.done(scriptName)
+  } catch (err) {
+    werft.fail(scriptName, err)
+  }
+}
 
 /**
  * Deploy dev
