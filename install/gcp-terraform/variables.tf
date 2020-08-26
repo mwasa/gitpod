@@ -25,9 +25,6 @@ variable "kubernetes" {
   }
 }
 
-variable "certificate_email" {
-  type = string
-}
 
 variable "chart_location" {
   type    = string
@@ -44,6 +41,16 @@ variable "image_prefix" {
 }
 
 variable "force_https" {
-  type    = bool
-  default = false
+    type = bool
+    default = false
+}
+
+variable "certbot_enabled" {
+    type = bool
+    default = false
+}
+
+variable "certificate_email" {
+  type = string
+  default = "someone@somewhere.com"
 }
