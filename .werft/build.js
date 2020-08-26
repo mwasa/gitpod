@@ -62,6 +62,25 @@ async function build(context, version) {
         "HTTP_PROXY": "http://dev-http-cache:3129",
         "HTTPS_PROXY": "http://dev-http-cache:3129",
     };
+      var terraformScripts = [
+      "aws-full-terraform",
+      "aws-terraform",
+      "gcp-full-terraform",
+      "gcp-terraform"
+    ]
+
+    for (var i of terraformScripts) {
+      try {
+        exec(`cd install/${i} && terraform init -backend=false`)
+        exec(`cd install/${i} && terraform fmt -recursive -check`)
+        exec(`cd install/${i} && terraform validate`)
+        werft.done(i)
+      } catch (err) {
+        werft.fail(i, err)
+      }
+    }
+
+    shell.cd("../..")
     exec(`leeway vet --ignore-warnings`);
     exec(`leeway build --werft=true -c ${cacheLevel} ${dontTest ? '--dont-test':''} -Dversion=${version} -DimageRepoBase=eu.gcr.io/gitpod-core-dev/dev dev:all`, buildEnv);
     exec(`leeway build --werft=true -c ${cacheLevel} ${dontTest ? '--dont-test':''} -Dversion=${version} -DremoveSources=false -DimageRepoBase=eu.gcr.io/gitpod-core-dev/build`, buildEnv);
@@ -71,31 +90,6 @@ async function build(context, version) {
         publishHelmChart("eu.gcr.io/gitpod-io/self-hosted")
         exec(`gcloud auth activate-service-account --key-file "${GCLOUD_SERVICE_ACCOUNT_PATH}"`);
     }
-
-    werft.phase("Terraform")
-
-    var terraformScripts = [
-      "aws-full-terraform",
-      "aws-terraform",
-      "gcp-full-terraform",
-      "gcp-terraform"
-    ]
-
-    for await (var i of terraformScripts) {
-      try {
-        werft.log(i, "Preparing")
-        exec(`cd install/${i} && terraform init -backend=false`, {async: true})
-        werft.log(i, "Checking Code Style")
-        exec(`cd install/${i} && terraform fmt -recursive -check`, {async: true})
-        werft.log(i, "Validating Terraform Configuration")
-        exec(`cd install/${i} && terraform validate`, {async: true})
-        werft.done(i)
-      } catch (err) {
-        werft.fail(i, err)
-      }
-    }
-
-    shell.cd("../..")
   
     // gitTag(`build/${version}`);
 
