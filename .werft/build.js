@@ -71,9 +71,10 @@ async function build(context, version) {
 
     for (var i of terraformScripts) {
       try {
-        exec(`cd install/${i} && terraform init -backend=false`)
-        exec(`cd install/${i} && terraform fmt -recursive -check`)
-        exec(`cd install/${i} && terraform validate`)
+        werft.log(`install/${i}`, "Testing script")
+        exec(`cd install/${i} && terraform init -backend=false`, slice: `install/${i}`)
+        exec(`cd install/${i} && terraform fmt -recursive -check`, slice: `install/${i}`)
+        exec(`cd install/${i} && terraform validate`, slice: `install/${i}`)
         werft.done(i)
       } catch (err) {
         werft.fail(i, err)
