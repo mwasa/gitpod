@@ -82,7 +82,19 @@ async function build(context, version) {
     ]
 
     for (var i of terraformScripts) {
-      await checkScript(i)
+      (async () => {
+        try {
+          werft.log(i, "Preparing")
+          exec(`cd install/${i} && terraform init -backend=false`, {slice: true})
+          werft.log(i, "Checking Code Style")
+          exec(`cd install/${i} && terraform fmt -recursive -check`, {slice: true})
+          werft.log(i, "Validating Terraform Configuration")
+          exec(`cd install/${i} && terraform validate`, {slice: true})
+          werft.done(i)
+        } catch (err) {
+          werft.fail(i, err)
+        }
+      })()
     }
 
     shell.cd("../..")
@@ -108,21 +120,6 @@ async function build(context, version) {
     }
 }
 
-
-async function checkScript(scriptName) {
-  try {
-    werft.log(scriptName, "Preparing")
-    shell.cd(`install/${scriptName}`)
-    exec("terraform init -backend=false")
-    werft.log(scriptName, "Checking Code Style")
-    exec("terraform fmt -recursive -check")
-    werft.log(scriptName, "Validating Terraform Configuration")
-    exec("terraform validate")
-    werft.done(scriptName)
-  } catch (err) {
-    werft.fail(scriptName, err)
-  }
-}
 
 /**
  * Deploy dev
