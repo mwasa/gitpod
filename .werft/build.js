@@ -82,19 +82,17 @@ async function build(context, version) {
     ]
 
     for await (var i of terraformScripts) {
-      (async () => {
-        try {
-          werft.log(i, "Preparing")
-          exec(`cd install/${i} && terraform init -backend=false`, {async: true})
-          werft.log(i, "Checking Code Style")
-          exec(`cd install/${i} && terraform fmt -recursive -check`, {async: true})
-          werft.log(i, "Validating Terraform Configuration")
-          exec(`cd install/${i} && terraform validate`, {async: true})
-          werft.done(i)
-        } catch (err) {
-          werft.fail(i, err)
-        }
-      })()
+      try {
+        werft.log(i, "Preparing")
+        exec(`cd install/${i} && terraform init -backend=false`, {async: true})
+        werft.log(i, "Checking Code Style")
+        exec(`cd install/${i} && terraform fmt -recursive -check`, {async: true})
+        werft.log(i, "Validating Terraform Configuration")
+        exec(`cd install/${i} && terraform validate`, {async: true})
+        werft.done(i)
+      } catch (err) {
+        werft.fail(i, err)
+      }
     }
 
     shell.cd("../..")
