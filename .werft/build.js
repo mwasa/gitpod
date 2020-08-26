@@ -81,15 +81,15 @@ async function build(context, version) {
       "gcp-terraform"
     ]
 
-    for (var i of terraformScripts) {
+    for await (var i of terraformScripts) {
       (async () => {
         try {
           werft.log(i, "Preparing")
-          exec(`cd install/${i} && terraform init -backend=false`, {slice: true})
+          exec(`cd install/${i} && terraform init -backend=false`, {async: true})
           werft.log(i, "Checking Code Style")
-          exec(`cd install/${i} && terraform fmt -recursive -check`, {slice: true})
+          exec(`cd install/${i} && terraform fmt -recursive -check`, {async: true})
           werft.log(i, "Validating Terraform Configuration")
-          exec(`cd install/${i} && terraform validate`, {slice: true})
+          exec(`cd install/${i} && terraform validate`, {async: true})
           werft.done(i)
         } catch (err) {
           werft.fail(i, err)
