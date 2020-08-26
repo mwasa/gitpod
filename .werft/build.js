@@ -85,11 +85,11 @@ async function build(context, version) {
       try {
         werft.log(i, "Preparing")
         shell.cd(`install/${i}`)
-        exec("terraform init -backend=false")
+        exec("terraform init -backend=false", {async: true})
         werft.log(i, "Checking Code Style")
-        exec("terraform fmt -recursive -check")
+        exec("terraform fmt -recursive -check", {async: true})
         werft.log(i, "Validating Terraform Configuration")
-        exec("terraform validate")
+        exec("terraform validate", {async: true})
         werft.done(i)
       } catch (err) {
         werft.fail(i, err)
