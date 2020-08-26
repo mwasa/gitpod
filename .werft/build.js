@@ -82,7 +82,7 @@ async function build(context, version) {
     ]
 
     for (var i of terraformScripts) {
-      checkScript(i)
+      await checkScript(i)
     }
 
     shell.cd("../..")
